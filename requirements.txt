@@ -1,0 +1,8 @@
+fastapi[standard]
+pandas
+numpy
+scikit-learn
+redis
+pymongo[srv]==3.12
+joblib
+scikit-surprise
