@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
 import ast
-from db.mongodb import MongoDBConnection
+
 # Initialize Redis client
 redis_client = RedisClient()
 
@@ -104,7 +104,7 @@ class RecommendationService:
 
         # Convert new user actions to DataFrame
         new_user_actions_df = pd.DataFrame(new_user_actions, columns=columns_user_action)
-
+        new_user_actions_df.to_csv("new_user_actions.csv",index=False)
         # Ensure correct data types
         new_user_actions_df['userID'] = new_user_actions_df['userID'].astype(int)
         new_user_actions_df['artID'] = new_user_actions_df['artID'].astype(int)
@@ -156,14 +156,18 @@ class RecommendationService:
         try:
             # Kiểm tra xem tag có phải là list hay không
             if isinstance(tag, list):
-                # Nếu là list, nối các phần tử thành chuỗi
-                return ' '.join(tag)
+                # Nếu là list, nối các phần tử thành chuỗi và xử lý các từ ghép
+                processed_tag = ' '.join([word.replace(' ', '') if len(word.split()) > 1 else word for word in tag])
+                return processed_tag
             elif isinstance(tag, str) and tag != '':
-                return tag  # Nếu là chuỗi, trả về nguyên bản
+                # Nếu là chuỗi, xử lý các từ ghép có dấu cách
+                processed_tag = ''.join([word.replace(' ', '') if len(word.split()) > 1 else word for word in tag.split()])
+                return processed_tag
             return ''
         except Exception as e:
             logger.error(f"Error processing tag: {e}")
             return ''
+
 
     def preprocess_data(self, artwork):
         """Tiền xử lý dữ liệu từ CSV hoặc nguồn khác"""
